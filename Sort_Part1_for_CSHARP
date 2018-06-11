@@ -1,0 +1,113 @@
+using System;
+using System.Diagnostics;
+
+
+
+namespace AlgorithmNew
+{
+    public class Sort<T> where T: IComparable
+    {
+        public  int n;
+        public  int[] a;
+        
+        public Sort()
+        {
+            n = 1000;
+            a = this.generateRandomArray(n, 0, n);
+        }
+
+        public Sort(int n)
+        {
+            this.n = n;
+            a = this.generateRandomArray(n, 0, n);
+        }
+        public void selectionSort(T[] arr, int n)
+        {
+            for (int i = 0; i < n; ++i)
+            {
+                int min = i;
+                for (int j = i; j < n; ++j)
+                {
+                    if (arr[j].CompareTo(arr[min]) < 0)
+                    {
+                        min = j;
+                    }
+                }
+                
+                sawpNum(ref arr[i],ref arr[min]);
+            }
+        }
+
+        public void insertionSort(T[] arr, int n)
+        {
+            for (int i = 1; i < n; i++)
+            {
+                T temp = arr[i];
+                int p;
+                for (p = i - 1; p >= 0 && temp.CompareTo(arr[p]) < 0; --p)
+                {
+                    arr[p + 1] = arr[p];
+                }
+
+                arr[p + 1] = temp;
+            }
+        }
+
+
+        private void sawpNum(ref T a, ref T b)
+        {
+            T t = a;
+            a = b;
+            b = t;
+        }
+
+        public int[] generateRandomArray(int n, int l, int r)
+        {
+            Debug.Assert(l<=r);
+            
+            Random random = new Random();
+            int[] arr = new int[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                arr[i] = random.Next(l, r-1);
+            }
+
+            return arr;
+        }
+
+        public void PrintArray(T[] a, int n)
+        {
+            for (int i = 0; i < a.Length; i++)
+            {
+                System.Console.Write(a[i]);
+                System.Console.Write(" ");
+            }
+        }
+
+        private bool isSort(T[] arr, int n)
+        {
+            for (int i = 0; i < n - 1; i++)
+            {
+                if(arr[i].CompareTo(arr[i+1])>0){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void testSort(string sortName, Action<T[]> sort, T[] arr)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            sort(arr);
+            sw.Stop();
+            
+            Debug.Assert(isSort(arr,arr.Length));
+            
+            TimeSpan ts2 = sw.Elapsed;  
+            Console.WriteLine("Stopwatch总共花费{0}ms.", ts2.TotalMilliseconds);  
+        }
+    }
+}
