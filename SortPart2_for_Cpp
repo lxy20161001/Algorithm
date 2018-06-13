@@ -1,0 +1,155 @@
+//
+// Created by john on 2018-6-13.
+//
+
+#ifndef ALGORITHMNEW_SORT_H
+#define ALGORITHMNEW_SORT_H
+
+#include <iostream>
+#include <algorithm>
+#include <string>
+#include <ctime>
+#include <cassert>
+
+
+using namespace std;
+
+template <typename T>
+class MergeSort{
+public:
+
+    int n;
+    T *arr;
+
+public:
+    MergeSort(){
+        n = 1000;
+        arr = this->generateRandomArray(n,0,n);
+    }
+
+    MergeSort(int n){
+        this->n = n;
+        arr = this->generateRandomArray(n,0,n);
+    }
+
+    ~MergeSort(){
+        delete arr;
+    }
+public:
+    void mergeSort(T arr[],int n){
+        __mergeSort(arr,0,n-1);
+    }
+
+private:
+    //l 和 r之间的元素进行排序，r = n - 1;
+    void __mergeSort(T arr[],int l,int r){
+            //if(l >= r){
+            //    //说明元素集为空
+            //    return;
+            //}
+
+            if(r-l <= 15){
+                //如果归并到最后的15位，就可以尝试运用插入算法
+                InsertionSort(arr,l,r);
+                return;
+            }
+
+            int mid = l+(r-l)/2;
+            __mergeSort(arr,l,mid);//前半段
+            __mergeSort(arr,mid+1,r);//后半段
+            //这里会一直进行递归，直到不能再切分位置；
+            if(arr[mid] > arr[mid+1])// 如果前一个mid大于mid+1，讲明前后顺序错了
+                //如果数据元素接近有序，建议加上这句代码
+                __merge(arr,l,mid,r);//对整个数组进行整体归并
+    }
+
+    //l to mid,mid+1 to r,进行归并
+    void __merge(T arr[],int l,int mid,int r){
+        T *aux = new T[r-l+1];
+        //COPY ARR ITEM TO AUX
+        //r 是 比空间，所以i<=r
+        for(int i=l;i<=r;i++){
+            aux[i-l]=arr[i];
+        }
+
+        int i = l, j = mid+1;
+        //把l and mid+1 用 临时变量存储起来
+
+
+        //循环aux，并进行归并判断，把元素放回arr当中
+        for(int k = l; k <= r;k++){
+            if(i>mid){
+                //说明左边的元素已经没有了，直接运用右边第一个元素
+                arr[k]=aux[j-l];
+                j++;
+            }
+            else if(j>r){
+                //说明右边的元素已经没有了，直接运用左边第一个元素
+                arr[k] = aux[i-l];
+                i++;
+            }
+            else if(aux[i-l] < aux[j-l]){
+                arr[k] = aux[i-l];//i - l 是左边第一个元素，j-l是右边第一个元素
+                i++;//位置后移一位
+            }else{
+                //aux[i-l]>aux[j-l]
+                arr[k] = aux[j-l];
+                j++;
+            }
+        }
+    }
+
+
+    void InsertionSort(T arr[],int l,int r){
+        for(int i = l+1;i<= r;i++){//i = l+1 ,就相当于 i= 1，把0流出来当成课兑换的参数
+            T temp = arr[i];
+            int p;
+            for(p=i;p>l && temp<arr[p-1];p--){
+                arr[p] = arr[p-1];
+            }
+            arr[p] = temp;
+        }
+    }
+
+public:
+
+    int* generateRandomArray(int n,int rangeL,int rangeR){
+        assert(rangeL<=rangeR);
+
+        int *arr = new int[n];
+
+        srand(time(NULL));
+
+        for(int i = 0; i< n;++i){
+            arr[i] = rand()%(rangeR - rangeL+1) + rangeL;
+        }
+
+        return  arr;
+    }
+
+    void PrintArray(T arr[],int n){
+        for(int i =0;i<n;i++){
+            cout<<arr[i]<<",";
+        }
+        cout<<endl;
+    }
+
+    void testSort(string sortName,void(MergeSort::*sort)(T[],int),T arr[],int n){
+        clock_t startTime = clock();
+        (this->*sort)(arr,n);
+        clock_t endTime = clock();
+       // assert(isSorted(arr,n));
+        cout<<"ins"<<":"<<double(endTime-startTime)/CLOCKS_PER_SEC<<" s"<<endl;
+    }
+
+    bool isSorted(T arr[],int n){
+        for(int i = 0;i<n-1;i++){
+            if(arr[i]>arr[i+1]){
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
+#endif //ALGORITHMNEW_SORT_H
