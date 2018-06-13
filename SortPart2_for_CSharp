@@ -1,0 +1,149 @@
+using System;
+using System.Diagnostics;
+
+namespace AlgorithmNew.Properties
+{
+    public class MergeSort<T> where T:IComparable
+    {
+        public int n;
+        public int[] a;
+        public MergeSort(int n)
+        {
+            this.n = n;
+            this.a = generateRandomArray(n, 0, n);
+        }
+
+        public void mergeSort(T[] arr,int n)
+        {
+            __mergeSort(arr,0,n-1);
+        }
+
+        private void __mergeSort(T[] arr,int l,int r)
+        {
+            if (r - l <=15)
+            {
+                InstionSort(arr,l,r);
+                return;
+            }
+
+            int mid = l + (r - l) / 2;
+            
+            __mergeSort(arr,l,mid);//数组左边进行归并
+            __mergeSort(arr,mid+1,r);//数组右边进行归并
+            if(arr[mid].CompareTo(arr[mid+1])>0)
+                __Merge(arr,l,mid,r);
+
+        }
+
+        private void __Merge(T[] arr, int l, int mid, int r)
+        {
+            T[] aux = new T[r - l + 1];
+            //建立数组arr暂存空间
+            
+            
+            for(int i = l;i<=r;i++)
+            {
+                aux[i - l] = arr[i];
+            }
+
+            int d = l, j = mid + 1;
+
+            for (int k = l; k <= r; k++)
+            {
+
+                if (d > mid)
+                {
+                    //左侧元素用完，直接用右侧元素
+                    arr[k] = aux[j-l];
+                    j++;
+                }
+                else if (j > r)
+                {
+                    //右侧元素用完，直接用左侧元素
+                    arr[k] = aux[d - l];
+                    d++;
+                }
+                
+                else if (aux[d - l].CompareTo(aux[j - l]) < 0)
+                {
+                    //aux[i-l] < aux [j-l]
+                    arr[k] = aux[d - l];
+                    d++;
+                }
+                else
+                {
+                    //aux[i-l] > aux [j-l]
+                    arr[k] = aux[j - l];
+                    j++;
+                }
+            }
+
+            
+        }
+
+        private void InstionSort(T[] arr, int l, int r)
+        {
+            for (int i = l+1; i <= r; i++)
+            {
+                T temp = arr[i];
+                int p;
+                for (p = i; p > l  && temp.CompareTo(arr[p - 1]) < 0; p--)
+                {
+                    arr[p] = arr[p-1];
+                }
+
+                arr[p] = temp;
+            }
+        }
+        
+        
+        public int[] generateRandomArray(int n, int l, int r)
+        {
+            Debug.Assert(l<=r);
+            
+            Random random = new Random();
+            int[] arr = new int[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                arr[i] = random.Next(l, r-1);
+            }
+
+            return arr;
+        }
+
+        public void PrintArray(T[] a, int n)
+        {
+            for (int i = 0; i < a.Length; i++)
+            {
+                System.Console.Write(a[i]);
+                System.Console.Write(" ");
+            }
+        }
+
+        private bool isSort(T[] arr, int n)
+        {
+            for (int i = 0; i < n - 1; i++)
+            {
+                if(arr[i].CompareTo(arr[i+1])>0){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void testSort(string sortName, Action<T[]> sort, T[] arr)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            sort(arr);
+            sw.Stop();
+            
+            Debug.Assert(isSort(arr,arr.Length));
+            
+            TimeSpan ts2 = sw.Elapsed;  
+            Console.WriteLine("Stopwatch总共花费{0}ms.", ts2.TotalMilliseconds);  
+        }
+    }
+}
